@@ -1,6 +1,7 @@
 from ..signal import Signal
 import itertools
 
+
 class ParentChild(object):
     '''An object with parent, child relationships'''
     def __init__(self):
@@ -47,11 +48,12 @@ class ParentChild(object):
     def ancestors(self, newAncestors):
         # This is basically calling parent.setter on everything in the list
         newAncestors = [None] + newAncestors + [self]
+
         def pairwise(iterable):
             # TODO: stick this somewhere better
             a, b = itertools.tee(iterable)
             next(b, None)
-            return zip(a,b)
+            return zip(a, b)
         for parent, child in pairwise(newAncestors):
             child.parent = parent
 

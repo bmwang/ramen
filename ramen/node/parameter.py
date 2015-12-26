@@ -2,9 +2,10 @@ from ..signal import Signal
 from . import parentChild
 from . import connectable
 
+
 class Parameter(parentChild.ParentChild, connectable.Connectable):
     def __init__(self, label=None, parameterId=0, parent=None, index=0,
-            node=None):
+                 node=None):
         super(Parameter, self).__init__()
         # Simple properties with signals
         self._parameterId = parameterId
@@ -51,13 +52,13 @@ class Parameter(parentChild.ParentChild, connectable.Connectable):
         if self._node is None:
             return
         self.connectionAdded.connect(self.node.connectionAdded.emit,
-                parameter=self, param=self)
+                                     parameter=self, param=self)
         self.connectionRemoved.connect(self.node.connectionRemoved.emit,
-                parameter=self, param=self)
+                                       parameter=self, param=self)
         self.sinkChanged.connect(self.node.parameterSinkChanged.emit,
-                parameter=self, param=self)
+                                 parameter=self, param=self)
         self.sourceChanged.connect(self.node.parameterSourceChanged.emit,
-                parameter=self, param=self)
+                                   parameter=self, param=self)
 
     def deregisterCallbacks(self):
         if self._node is None:
@@ -103,7 +104,6 @@ class Parameter(parentChild.ParentChild, connectable.Connectable):
     def label(self):
         del self._label
 
-
     @property
     def index(self):
         return self._index
@@ -116,7 +116,6 @@ class Parameter(parentChild.ParentChild, connectable.Connectable):
     @index.deleter
     def index(self):
         del self._index
-
 
     @property
     def node(self):
@@ -207,6 +206,7 @@ class Parameter(parentChild.ParentChild, connectable.Connectable):
         if loftedParam is not None:
             return loftedParam.connect(surfaceParam)
 
+
 class TunnelParameter(Parameter):
     '''A Parameter for connecting a node's siblings to its children. Attaches
     to an existing parameter, or creates one on a specified node. Only valid
@@ -224,13 +224,13 @@ class TunnelParameter(Parameter):
         if self.node is None:
             return
         self.tunneledParameter.connect(self.node.tunneledParameterChanged,
-                parameter=self, param=self)
+                                       parameter=self, param=self)
 
     def deregisterNodeCallbacks(self):
         if self.node is None:
             return
         self.tunneledParameter.connect(self.node.tunneledParameterChanged,
-                parameter=self, param=self)
+                                       parameter=self, param=self)
 
     def registerTunneledParameterCallbacks(self):
         self.tunneledParameter.sinkChanged.connect(self.sinkChanged.emit)
@@ -291,5 +291,3 @@ class TunnelParameter(Parameter):
         newParam.sink = True
         self.node.getTunnelParameter(newParam).connect(self)
         return newParam
-
-

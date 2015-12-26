@@ -1,5 +1,6 @@
 import inspect
 
+
 class Signal(object):
     '''Small implementation of signals/slots with optional arguments'''
     def __init__(self):
@@ -34,4 +35,3 @@ class Signal(object):
             del self._slots[slot]
         else:
             print('Warning: Could not disconnect %s from %s' % (slot, self))
-

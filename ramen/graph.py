@@ -1,6 +1,7 @@
 from .signal import Signal
 from . import node
 
+
 class Graph(object):
     '''The graph. Contains all our nodes.'''
     def __init__(self):
@@ -39,7 +40,6 @@ class Graph(object):
 
         self.nodeAdded.connect(self._nodeAddedCallback)
         self.nodeRemoved.connect(self._nodeRemovedCallback)
-
 
     @property
     def nodes(self):
@@ -123,7 +123,7 @@ class Graph(object):
         if self._rootNodeId is None:
             self._rootNodeId = self._uniquefyNodeId('root')
             self._rootNode = node.SubgraphNode(nodeId=self._rootNodeId,
-                    graph=self)
+                                               graph=self)
             return self._rootNode
         return self[self._rootNodeId]
 
@@ -132,7 +132,7 @@ class Graph(object):
         if nodeId in self:
             nodeId = self._uniquefyNodeId(nodeId)
             node.nodeId = nodeId
-        if node.parent == None and nodeId != self._rootNodeId:
+        if node.parent is None and nodeId != self._rootNodeId:
             node.parent = self.rootNode
         self._nodes[nodeId] = node
 
@@ -143,5 +143,3 @@ class Graph(object):
             print('Warning: deleting root node')
             self._rootNodeId = None
         del self._nodes[node.nodeId]
-
-

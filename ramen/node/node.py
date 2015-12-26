@@ -2,13 +2,14 @@ from ..signal import Signal
 from . import parentChild
 from . import parameter
 
+
 class Node(parentChild.ParentChild):
     def __init__(self, label=None, nodeId=0, parent=None, graph=None):
         super(Node, self).__init__()
         # Simple properties with signals
         self._nodeId = nodeId
         self._label = label
-        self._pos = (0,0)
+        self._pos = (0, 0)
         self._selected = False
         self._graph = graph
         self._parameters = {}
@@ -41,7 +42,6 @@ class Node(parentChild.ParentChild):
         self.parameterAdded.connect(self._parameterAddedCallback)
         self.parameterRemoved.connect(self._parameterRemovedCallback)
 
-
         self.parent = parent
         self.acceptsChildren = False
         self.registerCallbacks()
@@ -62,15 +62,15 @@ class Node(parentChild.ParentChild):
         # Graph level signals
         self.posChanged.connect(self.graph.nodePosChanged.emit, node=self)
         self.selectedChanged.connect(self.graph.nodeSelectedChanged.emit,
-                node=self)
+                                     node=self)
         self.nodeIdChanged.connect(self.graph.nodeIdChanged.emit,
-                node=self)
+                                   node=self)
         self.labelChanged.connect(self.graph.nodeLabelChanged.emit,
-                node=self)
+                                  node=self)
         self.parentChanged.connect(self.graph.nodeParentChanged.emit,
-                node=self)
+                                   node=self)
         self.attributesChanged.connect(self.graph.nodeAttributesChanged.emit,
-                node=self)
+                                       node=self)
 
         # lofted parameter signals
         self.connectionAdded.connect(self.graph.connectionAdded.emit)
@@ -136,6 +136,7 @@ class Node(parentChild.ParentChild):
     @pos.deleter
     def pos(self):
         del self._pos
+
     @property
     def selected(self):
         return self._selected
@@ -239,6 +240,7 @@ class Node(parentChild.ParentChild):
         print('Warning! Unable to unquefy nodeId type %s' % str(type(nodeId)))
         return paramId
 
+
 class SubgraphNode(Node):
     def __init__(self, *args, **kwargs):
         super(SubgraphNode, self).__init__(*args, **kwargs)
@@ -258,14 +260,14 @@ class SubgraphNode(Node):
 
     def _parameterAddedCallback(self, param):
         # This is pretty dirty, TODO: clean up
-        if (param.parameterId in self._parameters
-                or param.parameterId in self._tunnelParameters):
+        if (param.parameterId in self._parameters or
+                param.parameterId in self._tunnelParameters):
             param.parameterId = self._uniquefyParameterId(param.parameterId)
 
         if isinstance(param, parameter.TunnelParameter):
             self._tunnelParameters[param.parameterId] = param
         else:
-            super(SubgraphNode,self)._parameterAddedCallback(param)
+            super(SubgraphNode, self)._parameterAddedCallback(param)
             tunnel = parameter.TunnelParameter(parameter=param)
             self._parameterToTunnel[param] = tunnel
             self._tunnelToParameter[tunnel] = param
@@ -281,15 +283,16 @@ class SubgraphNode(Node):
             tunnelParam = self.getTunnelParameter(param)
             tunnelParam.node = None
             tunnelParam.tunneledParameter = None
-            super(SubgraphNode,self)._parameterAddedCallback(param)
+            super(SubgraphNode, self)._parameterAddedCallback(param)
             del self._parameterToTunnel[param]
             del self._tunnelToParameter[tunnelParam]
 
     def getTunnelParameter(self, param):
         return self._parameterToTunnel.get(param, None)
+
     def getParameterForTunnel(self, tunnel):
         return self._tunnelToParameter.get(tunnel, None)
+
     @property
     def tunnelParameters(self):
         return list(self._tunnelParameters.values())
-

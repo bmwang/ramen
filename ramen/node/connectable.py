@@ -27,6 +27,7 @@ class Connectable(object):
         if self._source:
             return True
         return any([child.source for child in self._children])
+
     @source.setter
     def source(self, source):
         self._source = source
@@ -106,7 +107,3 @@ class Connectable(object):
 
     def disconnectAll(self):
         self.connections = set()
-
-
-
-
