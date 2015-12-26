@@ -4,48 +4,48 @@ from . import parameter
 
 
 class Node(parentChild.ParentChild):
-    def __init__(self, label=None, nodeId=0, parent=None, graph=None):
+    def __init__(self, label=None, node_id=0, parent=None, graph=None):
         super(Node, self).__init__()
         # Simple properties with signals
-        self._nodeId = nodeId
+        self._node_id = node_id
         self._label = label
         self._pos = (0, 0)
         self._selected = False
         self._graph = graph
         self._parameters = {}
-        self._rootParameter = None
+        self._root_parameter = None
 
         # Signals
-        self.nodeIdChanged = Signal()
-        self.labelChanged = Signal()
-        self.posChanged = Signal()
-        self.selectedChanged = Signal()
+        self.node_id_changed = Signal()
+        self.label_changed = Signal()
+        self.pos_changed = Signal()
+        self.selected_changed = Signal()
 
-        self.attributesChanged = Signal()
-        # "attributesChanged" is really one of four other signals
+        self.attributes_changed = Signal()
+        # "attributes_changed" is really one of four other signals
         # TODO: we could change the args into a dict
-        self.posChanged.connect(self.attributesChanged.emit)
-        self.selectedChanged.connect(self.attributesChanged.emit)
-        self.labelChanged.connect(self.attributesChanged.emit)
+        self.pos_changed.connect(self.attributes_changed.emit)
+        self.selected_changed.connect(self.attributes_changed.emit)
+        self.label_changed.connect(self.attributes_changed.emit)
 
         # Parameters
-        self.parameterAdded = Signal()
-        self.parameterRemoved = Signal()
+        self.parameter_added = Signal()
+        self.parameter_removed = Signal()
 
         # Parameter's signals loft up
-        self.connectionAdded = Signal()
-        self.connectionRemoved = Signal()
-        self.parameterSinkChanged = Signal()
-        self.parameterSourceChanged = Signal()
+        self.connection_added = Signal()
+        self.connection_removed = Signal()
+        self.parameter_sink_changed = Signal()
+        self.parameter_source_changed = Signal()
 
-        # Connect parameterAdded to callbacks here
-        self.parameterAdded.connect(self._parameterAddedCallback)
-        self.parameterRemoved.connect(self._parameterRemovedCallback)
+        # Connect parameter_added to callbacks here
+        self.parameter_added.connect(self._parameter_added_callback)
+        self.parameter_removed.connect(self._parameter_removed_callback)
 
         self.parent = parent
-        self.acceptsChildren = False
-        self.registerCallbacks()
-        self._graph.nodeAdded.emit(node=self)
+        self.accepts_children = False
+        self.register_callbacks()
+        self._graph.node_added.emit(node=self)
 
     def delete(self):
         self.parent = None
@@ -53,72 +53,75 @@ class Node(parentChild.ParentChild):
 
     def __repr__(self):
         # Fake repr for readability
-        labelStr = ''
+        label_str = ''
         if self.label is not None:
-            labelStr = '/%s' % self.label
-        return '<%s: %s%s>' % (self.__class__.__name__, self.nodeId, labelStr)
+            label_str = '/%s' % self.label
+        return '<%s: %s%s>' % (self.__class__.__name__, self.node_id,
+                               label_str)
 
-    def registerCallbacks(self):
+    def register_callbacks(self):
         # Graph level signals
-        self.posChanged.connect(self.graph.nodePosChanged.emit, node=self)
-        self.selectedChanged.connect(self.graph.nodeSelectedChanged.emit,
+        self.pos_changed.connect(self.graph.node_pos_changed.emit, node=self)
+        self.selected_changed.connect(self.graph.node_selected_changed.emit,
+                                      node=self)
+        self.node_id_changed.connect(self.graph.node_id_changed.emit,
                                      node=self)
-        self.nodeIdChanged.connect(self.graph.nodeIdChanged.emit,
+        self.label_changed.connect(self.graph.node_label_changed.emit,
                                    node=self)
-        self.labelChanged.connect(self.graph.nodeLabelChanged.emit,
-                                  node=self)
-        self.parentChanged.connect(self.graph.nodeParentChanged.emit,
-                                   node=self)
-        self.attributesChanged.connect(self.graph.nodeAttributesChanged.emit,
-                                       node=self)
+        self.parent_changed.connect(self.graph.node_parent_changed.emit,
+                                    node=self)
+        self.attributes_changed.connect(
+            self.graph.node_attributes_changed.emit, node=self)
 
         # lofted parameter signals
-        self.connectionAdded.connect(self.graph.connectionAdded.emit)
-        self.connectionRemoved.connect(self.graph.connectionRemoved.emit)
-        self.parameterSinkChanged.connect(self.graph.parameterSinkChanged.emit)
-        self.parameterSourceChanged.connect(
-                self.graph.parameterSourceChanged.emit)
+        self.connection_added.connect(self.graph.connection_added.emit)
+        self.connection_removed.connect(self.graph.connection_removed.emit)
+        self.parameter_sink_changed.connect(
+            self.graph.parameter_sink_changed.emit)
+        self.parameter_source_changed.connect(
+            self.graph.parameter_source_changed.emit)
 
-    def deregisterCallbacks(self):
+    def deregister_callbacks(self):
         # Graph level signals
-        self.posChanged.disconnect(self.graph.nodePosChanged.emit)
-        self.selectedChanged.disconnect(self.graph.nodeSelectedChanged.emit)
-        self.nodeIdChanged.disconnect(self.graph.nodeIdChanged.emit)
-        self.labelChanged.disconnect(self.graph.nodeLabelChanged.emit)
-        self.parentChanged.disconnect(self.graph.nodeParentChanged.emit)
-        self.attributesChanged.disconnect(
-                self.graph.nodeAttributesChanged.emit)
+        self.pos_changed.disconnect(self.graph.node_pos_changed.emit)
+        self.selected_changed.disconnect(self.graph.node_selected_changed.emit)
+        self.node_id_changed.disconnect(self.graph.node_id_changed.emit)
+        self.label_changed.disconnect(self.graph.node_label_changed.emit)
+        self.parent_changed.disconnect(self.graph.node_parent_changed.emit)
+        self.attributes_changed.disconnect(
+                self.graph.node_attributes_changed.emit)
 
         # lofted parameter signals
-        self.connectionAdded.disconnect(self.graph.connectionAdded.emit)
-        self.connectionRemoved.disconnect(self.graph.connectionRemoved.emit)
-        self.parameterSinkChanged.disconnect(
-                self.graph.parameterSinkChanged.emit)
-        self.parameterSourceChanged.disconnect(
-                self.graph.parameterSourceChanged.emit)
+        self.connection_added.disconnect(self.graph.connection_added.emit)
+        self.connection_removed.disconnect(self.graph.connection_removed.emit)
+        self.parameter_sink_changed.disconnect(
+                self.graph.parameter_sink_changed.emit)
+        self.parameter_source_changed.disconnect(
+                self.graph.parameter_source_changed.emit)
 
     @property
-    def nodeId(self):
-        return self._nodeId
+    def node_id(self):
+        return self._node_id
 
-    @nodeId.setter
-    def nodeId(self, newVal):
-        oldNodeId = self._nodeId
-        self._nodeId = newVal
-        self.nodeIdChanged.emit(oldNodeId=oldNodeId, nodeId=self._nodeId)
+    @node_id.setter
+    def node_id(self, val):
+        old_node_id = self._node_id
+        self._node_id = val
+        self.node_id_changed.emit(old_node_id=old_node_id,
+                                  node_id=self._node_id)
 
-    @nodeId.deleter
-    def nodeId(self):
-        del self._nodeid
+    @node_id.deleter
+    def node_id(self):
+        del self._node_id
 
     @property
     def label(self):
         return self._label
 
     @label.setter
-    def label(self, newVal):
-        self._label = newVal
-        self.labelChanged.emit(label=self._label)
+    def label(self, val):
+        self._label = val
+        self.label_changed.emit(label=self._label)
 
     @label.deleter
     def label(self):
@@ -129,9 +132,9 @@ class Node(parentChild.ParentChild):
         return self._pos
 
     @pos.setter
-    def pos(self, newVal):
-        self._pos = newVal
-        self.posChanged.emit(pos=self._pos)
+    def pos(self, val):
+        self._pos = val
+        self.pos_changed.emit(pos=self._pos)
 
     @pos.deleter
     def pos(self):
@@ -142,22 +145,22 @@ class Node(parentChild.ParentChild):
         return self._selected
 
     @selected.setter
-    def selected(self, newVal):
-        self._selected = newVal
-        self.selectedChanged.emit(selected=self._selected)
+    def selected(self, val):
+        self._selected = val
+        self.selected_changed.emit(selected=self._selected)
 
     @selected.deleter
     def selected(self):
         del self._selected
 
     @property
-    def rootParameter(self):
-        if self._rootParameter is None:
-            self._rootParameter = parameter.Parameter(node=self)
-        return self._rootParameter
+    def root_parameter(self):
+        if self._root_parameter is None:
+            self._root_parameter = parameter.Parameter(node=self)
+        return self._root_parameter
 
-    @rootParameter.setter
-    def rootParameter(self, rootParameter):
+    @root_parameter.setter
+    def root_parameter(self, root_parameter):
         # TODO
         return
 
@@ -166,27 +169,27 @@ class Node(parentChild.ParentChild):
         return self._graph
 
     @graph.setter
-    def graph(self, newGraph):
-        if self._graph == newGraph:
+    def graph(self, new_graph):
+        if self._graph == new_graph:
             return
-        self.deregisterCallbacks()
-        if self.parent is not None and self.parent.graph != newGraph:
+        self.deregister_callbacks()
+        if self.parent is not None and self.parent.graph != new_graph:
             self.parent = None
-        self._graph.nodeRemoved.emit(node=self)
-        self._graph = newGraph
+        self._graph.node_removed.emit(node=self)
+        self._graph = new_graph
         if self._graph is not None:
-            self.registerCallbacks()
-            self._graph.nodeAdded.emit(node=self)
+            self.register_callbacks()
+            self._graph.node_added.emit(node=self)
 
     @property
     def parameters(self):
         return list(self._parameters.values())
 
-    def getParameter(self, paramId):
-        return self._parameters.get(paramId, None)
+    def get_parameter(self, param_id):
+        return self._parameters.get(param_id, None)
 
-    def __getitem__(self, paramId):
-        return self.getParameter(paramId)
+    def __getitem__(self, param_id):
+        return self.get_parameter(param_id)
 
     @parameters.setter
     def parameters(self, newParams):
@@ -194,105 +197,107 @@ class Node(parentChild.ParentChild):
         return
 
     @property
-    def acceptsChildren(self):
+    def accepts_children(self):
         return False
 
-    @parentChild.ParentChild.acceptsChildren.setter
-    def acceptsChildren(self, acceptsChildren):
+    @parentChild.ParentChild.accepts_children.setter
+    def accepts_children(self, accepts_children):
         # I don't care what you give me, I don't accept children.
-        parentChild.ParentChild.acceptsChildren.fset(self, False)
+        parentChild.ParentChild.accepts_children.fset(self, False)
 
-    def createParameter(self, *args, **kwargs):
+    def create_parameter(self, *args, **kwargs):
         kwargs['node'] = self
         return parameter.Parameter(*args, **kwargs)
 
-    def deleteParameter(self, parameter):
+    def delete_parameter(self, parameter):
         parameter.delete()
 
-    def _parameterAddedCallback(self, parameter):
-        if parameter.parameterId in self._parameters:
-            parameter.parameterId = self._uniquefyParameterId(
-                    parameter.parameterId)
-        self._parameters[parameter.parameterId] = parameter
+    def _parameter_added_callback(self, parameter):
+        if parameter.parameter_id in self._parameters:
+            parameter.parameter_id = self._uniquefy_parameter_id(
+                    parameter.parameter_id)
+        self._parameters[parameter.parameter_id] = parameter
 
-    def _parameterRemovedCallback(self, parameter):
-        if param.parameterId in self._parameters:
-            del self._parameters[param.parameterId]
+    def _parameter_removed_callback(self, parameter):
+        if param.parameter_id in self._parameters:
+            del self._parameters[param.parameter_id]
 
-    def _uniquefyParameterId(self, paramId):
-        if not paramId not in self._parameters:
-            return paramId
-        # The ParamID can be either a string or int (or anything else you want,
+    def _uniquefy_parameter_id(self, param_id):
+        if not param_id not in self._parameters:
+            return param_id
+        # The param_id can be either a string or int (or anything you want,
         # but we need to be able to make a unique type)
-        if type(paramId) == type(str):
+        if type(param_id) == type(str):
             attempt = 0
-            uniqueId = paramId
-            while uniqueId in self._parameters:
+            unique_id = param_id
+            while unique_id in self._parameters:
                 attempt += 1
-                uniqueId = paramId + '_' + str(attempt)
-            return uniqueId
+                unique_id = param_id + '_' + str(attempt)
+            return unique_id
 
-        elif type(paramId) == type(int) or type(paramId) == type(float):
-            while uniqueId in self._parameters:
-                uniqueId += 1
-            return uniqueId
+        elif type(param_id) == type(int) or type(param_id) == type(float):
+            while unique_id in self._parameters:
+                unique_id += 1
+            return unique_id
 
-        print('Warning! Unable to unquefy nodeId type %s' % str(type(nodeId)))
-        return paramId
+        print('Warning! Unable to unquefy node_id type %s' %
+              str(type(node_id)))
+        return param_id
 
 
 class SubgraphNode(Node):
     def __init__(self, *args, **kwargs):
         super(SubgraphNode, self).__init__(*args, **kwargs)
-        self.acceptsChildren = True
-        self._tunnelParameters = {}
-        self._parameterToTunnel = {}
-        self._tunnelToParameter = {}
+        self.accepts_children = True
+        self._tunnel_parameters = {}
+        self._parameter_to_tunnel = {}
+        self._tunnel_to_parameter = {}
 
     @property
-    def acceptsChildren(self):
+    def accepts_children(self):
         return True
 
-    @parentChild.ParentChild.acceptsChildren.setter
-    def acceptsChildren(self, acceptsChildren):
+    @parentChild.ParentChild.accepts_children.setter
+    def accepts_children(self, accepts_children):
         # I don't care what you give me, I always accept children.
-        parentChild.ParentChild.acceptsChildren.fset(self, True)
+        parentChild.ParentChild.accepts_children.fset(self, True)
 
-    def _parameterAddedCallback(self, param):
+    def _parameter_added_callback(self, param):
         # This is pretty dirty, TODO: clean up
-        if (param.parameterId in self._parameters or
-                param.parameterId in self._tunnelParameters):
-            param.parameterId = self._uniquefyParameterId(param.parameterId)
+        if (param.parameter_id in self._parameters or
+                param.parameter_id in self._tunnel_parameters):
+            param.parameter_id = self._uniquefy_parameter_id(
+                param.parameter_id)
 
         if isinstance(param, parameter.TunnelParameter):
-            self._tunnelParameters[param.parameterId] = param
+            self._tunnel_parameters[param.parameter_id] = param
         else:
-            super(SubgraphNode, self)._parameterAddedCallback(param)
+            super(SubgraphNode, self)._parameter_added_callback(param)
             tunnel = parameter.TunnelParameter(parameter=param)
-            self._parameterToTunnel[param] = tunnel
-            self._tunnelToParameter[tunnel] = param
+            self._parameter_to_tunnel[param] = tunnel
+            self._tunnel_to_parameter[tunnel] = param
 
-    def _parameterRemovedCallback(self, param):
+    def _parameter_removed_callback(self, param):
         # This is pretty dirty, TODO: clean up
         if isinstance(param, parameter.TunnelParameter):
-            if param.parameterId in self._tunnelParameters:
-                del self._tunnelParameters[param.parameterId]
-                if param in self._tunnelToParameter:
-                    self._tunnelToParameter[param].node = None
+            if param.parameter_id in self._tunnel_parameters:
+                del self._tunnel_parameters[param.parameter_id]
+                if param in self._tunnel_to_parameter:
+                    self._tunnel_to_parameter[param].node = None
         else:
-            tunnelParam = self.getTunnelParameter(param)
-            tunnelParam.node = None
-            tunnelParam.tunneledParameter = None
-            super(SubgraphNode, self)._parameterAddedCallback(param)
-            del self._parameterToTunnel[param]
-            del self._tunnelToParameter[tunnelParam]
+            tunnel_param = self.get_tunnel_parameter(param)
+            tunnel_param.node = None
+            tunnel_param.tunneledParameter = None
+            super(SubgraphNode, self)._parameter_added_callback(param)
+            del self._parameter_to_tunnel[param]
+            del self._tunnel_to_parameter[tunnel_param]
 
-    def getTunnelParameter(self, param):
-        return self._parameterToTunnel.get(param, None)
+    def get_tunnel_parameter(self, param):
+        return self._parameter_to_tunnel.get(param, None)
 
-    def getParameterForTunnel(self, tunnel):
-        return self._tunnelToParameter.get(tunnel, None)
+    def get_parameter_for_tunnel(self, tunnel):
+        return self._tunnel_to_parameter.get(tunnel, None)
 
     @property
-    def tunnelParameters(self):
-        return list(self._tunnelParameters.values())
+    def tunnel_parameters(self):
+        return list(self._tunnel_parameters.values())

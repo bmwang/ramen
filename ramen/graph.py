@@ -7,62 +7,58 @@ class Graph(object):
     def __init__(self):
         # ID -> node
         self._nodes = {}
-        self._rootNodeId = None
+        self._root_node_id = None
 
-        self._selectedNodes = set()
+        self._selected_nodes = set()
 
         # Nodes
-        self.nodeAdded = Signal()
-        self.nodeRemoved = Signal()
-        self.nodeParentChanged = Signal()
+        self.node_added = Signal()
+        self.node_removed = Signal()
+        self.node_parent_changed = Signal()
 
         # Parameters
-        self.parameterAdded = Signal()
-        self.parameterRemoved = Signal()
-        self.parameterSinkChanged = Signal()
-        self.parameterSourceChanged = Signal()
+        self.parameter_added = Signal()
+        self.parameter_removed = Signal()
+        self.parameter_sink_changed = Signal()
+        self.parameter_source_changed = Signal()
 
         # Connections
-        self.connectionAdded = Signal()
-        self.connectRemoved = Signal()
+        self.connection_added = Signal()
+        self.connection_removed = Signal()
 
         # node attributes
-        self.nodeIdChanged = Signal()
-        self.nodeLabelChanged = Signal()
-        self.nodeAttributesChanged = Signal()
-        self.nodePosChanged = Signal()
-        self.nodeSelectedChanged = Signal()
-        self.nodeNameChanged = Signal()
+        self.node_id_changed = Signal()
+        self.node_label_changed = Signal()
+        self.node_attributes_changed = Signal()
+        self.node_pos_changed = Signal()
+        self.node_selected_changed = Signal()
+        self.node_name_changed = Signal()
 
-        # connections
-        self.connectionAdded = Signal()
-        self.connectionRemoved = Signal()
-
-        self.nodeAdded.connect(self._nodeAddedCallback)
-        self.nodeRemoved.connect(self._nodeRemovedCallback)
+        self.node_added.connect(self._node_added_callback)
+        self.node_removed.connect(self._node_removed_callback)
 
     @property
     def nodes(self):
         return self._nodes.values()
 
     @nodes.setter
-    def nodes(self, newNodes):
-        curNodes = set(self._nodes.values())
-        newNodes = set(newNodes)
+    def nodes(self, new_nodes):
+        cur_nodes = set(self._nodes.values())
+        new_nodes = set(new_nodes)
         # Don't delete the root node!
-        newNodes.add(self.rootNode)
-        nodesToAdd = newNodes.difference(curNodes)
-        nodesToRemove = curNodes.difference(newNodes)
-        for node in nodesToAdd:
+        new_nodes.add(self.root_node)
+        nodes_to_add = new_nodes.difference(cur_nodes)
+        nodes_to_remove = cur_nodes.difference(new_nodes)
+        for node in nodes_to_add:
             node.graph = self
-        for node in nodesToRemove:
+        for node in nodes_to_remove:
             node.graph = None
 
     @nodes.deleter
     def nodes(self):
         self.clear()
 
-    def createNode(self, *args, **kwargs):
+    def create_node(self, *args, **kwargs):
         # convenience
         kwargs['graph'] = self
         return node.Node(*args, **kwargs)
@@ -71,75 +67,76 @@ class Graph(object):
         self.nodes = []
 
     @property
-    def selectedNodes(self):
-        return set(self._selectedNodes)
+    def selected_nodes(self):
+        return set(self._selected_nodes)
 
-    def __getitem__(self, nodeId):
-        return self._nodes.get(nodeId, None)
+    def __getitem__(self, node_id):
+        return self._nodes.get(node_id, None)
 
-    def __contains__(self, nodeId):
-        return nodeId in self._nodes
+    def __contains__(self, node_id):
+        return node_id in self._nodes
 
     @property
-    def selecetdNodes(self):
-        return set(self._selectedNodes)
+    def selected_nodes(self):
+        return set(self._selected_nodes)
 
-    @selectedNodes.setter
-    def selectedNodes(self, selectedNodes):
-        nodesToSelect = selectedNodes.difference(self._selectedNodes)
-        nodesToUnselect = self._selectedNodes.difference(selectedNodes)
-        for node in nodesToSelect:
-            node.setSelected(True)
-        for node in nodesToUnselect:
-            node.setSelected(False)
+    @selected_nodes.setter
+    def selected_nodes(self, selected_nodes):
+        nodes_to_select = selected_nodes.difference(self._selected_nodes)
+        nodes_to_unselect = self._selected_nodes.difference(selected_nodes)
+        for node in nodes_to_select:
+            node.set_selected(True)
+        for node in nodes_to_unselect:
+            node.set_selected(False)
 
-    def clearSelecetion(self):
-        for node in self.getSelectedNodes():
-            node.setSelected(False)
+    def clear_selection(self):
+        for node in self.get_selected_nodes():
+            node.set_selected(False)
 
-    def _uniquefyNodeId(self, nodeId):
-        if nodeId not in self:
-            return nodeId
-        # The NodeID can be either a string or int (or anything else you want,
+    def _uniquefy_node_id(self, node_id):
+        if node_id not in self:
+            return node_id
+        # The node_id can be either a string or int (or anything else you want,
         # but we need to be able to make a unique type)
-        if type(nodeId) == str:
+        if type(node_id) == str:
             attempt = 0
-            uniqueNodeId = nodeId
-            while uniqueNodeId in self:
+            unique_node_id = node_id
+            while unique_node_id in self:
                 attempt += 1
-                uniqueNodeId = nodeId + '_' + str(attempt)
-            return uniqueNodeId
+                unique_node_id = node_id + '_' + str(attempt)
+            return unique_node_id
 
-        elif type(nodeId) == int or type(nodeId) == float:
-            while nodeId in self:
-                nodeId += 1
-            return nodeId
+        elif type(node_id) == int or type(node_id) == float:
+            while node_id in self:
+                node_id += 1
+            return node_id
 
-        print('Warning! Unable to unquefy nodeId type %s' % str(type(nodeId)))
-        return nodeId
+        print('Warning! Unable to unquefy node_id type %s' %
+              str(type(node_id)))
+        return node_id
 
     @property
-    def rootNode(self):
-        if self._rootNodeId is None:
-            self._rootNodeId = self._uniquefyNodeId('root')
-            self._rootNode = node.SubgraphNode(nodeId=self._rootNodeId,
-                                               graph=self)
-            return self._rootNode
-        return self[self._rootNodeId]
+    def root_node(self):
+        if self._root_node_id is None:
+            self._root_node_id = self._uniquefy_node_id('root')
+            self._root_node = node.SubgraphNode(node_id=self._root_node_id,
+                                                graph=self)
+            return self._root_node
+        return self[self._root_node_id]
 
-    def _nodeAddedCallback(self, node):
-        nodeId = node.nodeId
-        if nodeId in self:
-            nodeId = self._uniquefyNodeId(nodeId)
-            node.nodeId = nodeId
-        if node.parent is None and nodeId != self._rootNodeId:
-            node.parent = self.rootNode
-        self._nodes[nodeId] = node
+    def _node_added_callback(self, node):
+        node_id = node.node_id
+        if node_id in self:
+            node_id = self._uniquefy_node_id(node_id)
+            node.node_id = node_id
+        if node.parent is None and node_id != self._root_node_id:
+            node.parent = self.root_node
+        self._nodes[node_id] = node
 
-    def _nodeRemovedCallback(self, node):
-        if node.nodeId not in self:
+    def _node_removed_callback(self, node):
+        if node.node_id not in self:
             return
-        if node.nodeId == self._rootNodeId:
+        if node.node_id == self._root_node_id:
             print('Warning: deleting root node')
-            self._rootNodeId = None
-        del self._nodes[node.nodeId]
+            self._root_node_id = None
+        del self._nodes[node.node_id]

@@ -13,22 +13,22 @@ class Signal(object):
         self._slots = {}
 
     def emit(self, *args, **kwargs):
-        for slot, (connArgs, connKwargs) in self._slots.items():
-            fullArgs = list(connArgs)
-            fullArgs.extend(args)
+        for slot, (conn_args, conn_kwargs) in self._slots.items():
+            full_args = list(conn_args)
+            full_args.extend(args)
 
-            fullKwargs = dict(connKwargs)
-            fullKwargs.update(kwargs)
+            full_kwargs = dict(conn_kwargs)
+            full_kwargs.update(kwargs)
             argspec = inspect.getargspec(slot)
             if not argspec.keywords:
-                for key in list(fullKwargs.keys()):
+                for key in list(full_kwargs.keys()):
                     if key not in argspec.args:
-                        del fullKwargs[key]
+                        del full_kwargs[key]
 
-            slot(*fullArgs, **fullKwargs)
+            slot(*full_args, **full_kwargs)
 
-    def connect(self, slot, *slotArgs, **slotKwargs):
-        self._slots[slot] = (slotArgs, slotKwargs)
+    def connect(self, slot, *slot_args, **slot_kwargs):
+        self._slots[slot] = (slot_args, slot_kwargs)
 
     def disconnect(self, slot):
         if slot in self._slots:

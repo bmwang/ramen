@@ -1,12 +1,12 @@
 class Connectable(object):
     def __init__(self):
-        self._connectionsIn = set()
-        self._connectionsOut = set()
+        self._connections_in = set()
+        self._connections_out = set()
 
-        self.connectionAdded = Signal()
-        self.connectionRemoved = Signal()
-        self.sinkChanged = Signal()
-        self.sourceChanged = Signal()
+        self.connection_added = Signal()
+        self.connection_removed = Signal()
+        self.sink_changed = Signal()
+        self.source_changed = Signal()
 
         self._sink = False
         self._source = False
@@ -20,7 +20,7 @@ class Connectable(object):
     @sink.setter
     def sink(self, sink):
         self._sink = sink
-        self.sinkChanged.emit()
+        self.sink_changed.emit()
 
     @property
     def source(self):
@@ -31,79 +31,79 @@ class Connectable(object):
     @source.setter
     def source(self, source):
         self._source = source
-        self.sourceChanged.emit()
+        self.source_changed.emit()
 
     @property
-    def connectionsOut(self):
-        return set(self._connectionsOut)
+    def connections_out(self):
+        return set(self._connections_out)
 
     @property
-    def connectionsIn(self):
+    def connections_in(self):
         # TODO: make this work with .append and .extend, etc
-        return set(self._connectionsIn)
+        return set(self._connections_in)
 
-    @connectionsOut.setter
-    def connectionsOut(self, newConns):
-        nodesToConnect = newConns.difference(self._connectionsOut)
-        nodesToDisconnect = self._connectionsOut.difference(newConns)
-        for node in nodesToConnect:
-            self.connectToSource(node)
-        for node in nodesToDisconnect:
+    @connections_out.setter
+    def connections_out(self, new_conns):
+        nodes_to_connect = new_conns.difference(self._connections_out)
+        nodes_to_disconnect = self._connections_out.difference(new_conns)
+        for node in nodes_to_connect:
+            self.connect_to_source(node)
+        for node in nodes_to_disconnect:
             self.disconnectFromSource(node)
 
-    @connectionsIn.setter
-    def connectionsIn(self, newConns):
-        nodesToConnect = newConns.difference(self._connectionsIn)
-        nodesToDisconnect = self._connectionsIn.difference(newConns)
-        for node in nodesToConnect:
-            self.connectToSink(node)
-        for node in nodesToDisconnect:
+    @connections_in.setter
+    def connections_in(self, new_conns):
+        nodes_to_connect = new_conns.difference(self._connections_in)
+        nodes_to_disconnect = self._connections_in.difference(new_conns)
+        for node in nodes_to_connect:
+            self.connect_to_sink(node)
+        for node in nodes_to_disconnect:
             self.disconnectFromSink(node)
 
     @property
     def connections(self):
-        allConns = self._connectionsIn.union(self._connectionsOut)
-        return allConns
+        all_conns = self._connections_in.union(self._connections_out)
+        return all_conns
 
     @connections.setter
-    def connections(self, newConns):
-        curConns = self.connections
-        nodesToConnect = newConns.difference(curConns)
-        nodesToDisconnect = curConns.difference(newConns)
-        for node in nodesToConnect:
+    def connections(self, new_conns):
+        cur_conns = self.connections
+        nodes_to_connect = new_conns.difference(cur_conns)
+        nodes_to_disconnect = cur_conns.difference(new_conns)
+        for node in nodes_to_connect:
             self.connect(node)
-        for node in nodesToDisconnect:
+        for node in nodes_to_disconnect:
             self.disconnect(node)
 
     def connect(self, param):
         if param is None:
             return
         if self.sink and param.source:
-            self.connectToSource(param)
+            self.connect_to_source(param)
         elif self.source and param.sink:
-            self.connectToSink(param)
+            self.connect_to_sink(param)
 
-    def connectToSource(self, param):
+    def connect_to_source(self, param):
         if not (self.sink and param.source):
             return
 
-        if param in self._connectionsIn:
+        if param in self._connections_in:
             # This if is a little bit tricky w/ circular recursion
             # One side knows about this connection, so we don't need to
             # do anything.
             return
-        self._connectionsIn.add(param)
-        param.connectToSink(self)
+        self._connections_in.add(param)
+        param.connect_to_sink(self)
         # Only one connect function needs the signal emission
-        self.connectionAdded.emit(source=param, sink=self)
+        self.connection_added.emit(source=param, sink=self)
 
-    def connectToSink(self, param):
+    def connect_to_sink(self, param):
         if not (self.source and param.sink):
             return
-        if param in self._connectionsOut:
+        if param in self._connections_out:
             return
-        self._connectionsOut.add(param)
-        param.connectToSource(self)
+        self._connections_out.add(param)
+        param.connect_to_source(self)
 
     def disconnectAll(self):
         self.connections = set()

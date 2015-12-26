@@ -7,13 +7,13 @@ class ParentChild(object):
     def __init__(self):
         self._parent = None
         self._children = set()
-        self._acceptsChildren = True
+        self._accepts_children = True
 
-        self.acceptsChildrenChanged = Signal()
-        self.parentChanged = Signal()
-        self.childAdded = Signal()
-        self.childRemoved = Signal()
-        self.childrenChanged = Signal()
+        self.accepts_children_changed = Signal()
+        self.parent_changed = Signal()
+        self.child_added = Signal()
+        self.child_removed = Signal()
+        self.children_changed = Signal()
 
     @property
     def parent(self):
@@ -23,17 +23,17 @@ class ParentChild(object):
     def parent(self, parent):
         if parent == self._parent:
             return
-        if parent is not None and not parent.acceptsChildren:
+        if parent is not None and not parent.accepts_children:
             return
 
         if self._parent is not None:
-            self._parent.disownChild(self)
+            self._parent.disown_child(self)
             self._parent = None
 
         self._parent = parent
         if parent is not None:
-            parent.adoptChild(self)
-        self.parentChanged.emit(parent=parent)
+            parent.adopt_child(self)
+        self.parent_changed.emit(parent=parent)
 
     @property
     def ancestors(self):
@@ -45,16 +45,16 @@ class ParentChild(object):
         return res
 
     @ancestors.setter
-    def ancestors(self, newAncestors):
+    def ancestors(self, new_ancestors):
         # This is basically calling parent.setter on everything in the list
-        newAncestors = [None] + newAncestors + [self]
+        new_ancestors = [None] + new_ancestors + [self]
 
         def pairwise(iterable):
             # TODO: stick this somewhere better
             a, b = itertools.tee(iterable)
             next(b, None)
             return zip(a, b)
-        for parent, child in pairwise(newAncestors):
+        for parent, child in pairwise(new_ancestors):
             child.parent = parent
 
     @property
@@ -64,36 +64,36 @@ class ParentChild(object):
         return set(self._children)
 
     @children.setter
-    def children(self, newChildren):
-        childrenToAdopt = newChildren.difference(self._children)
-        childrenToDisown = self._children.difference(newChildren)
-        if self.acceptsChildren:
-            for child in childrenToAdopt:
-                self.adoptChild(child)
-        for child in childrenToDisown:
-            self.disownChild(child)
+    def children(self, new_children):
+        children_to_adopt = new_children.difference(self._children)
+        children_to_disown = self._children.difference(new_children)
+        if self.accepts_children:
+            for child in children_to_adopt:
+                self.adopt_child(child)
+        for child in children_to_disown:
+            self.disown_child(child)
 
     @property
-    def acceptsChildren(self):
-        return self._acceptsChildren
+    def accepts_children(self):
+        return self._accepts_children
 
-    @acceptsChildren.setter
-    def acceptsChildren(self, acceptsChildren):
-        self._acceptsChildren = acceptsChildren
-        self.acceptsChildrenChanged.emit(acceptsChildren=acceptsChildren)
+    @accepts_children.setter
+    def accepts_children(self, accepts_children):
+        self._accepts_children = accepts_children
+        self.accepts_children_changed.emit(accepts_children=accepts_children)
 
-    def adoptChild(self, child):
-        if not self.acceptsChildren:
+    def adopt_child(self, child):
+        if not self.accepts_children:
             return
         if child in self._children:
             return
         self._children.add(child)
         child.parent = self
-        self.childAdded.emit(child=child)
+        self.child_added.emit(child=child)
 
-    def disownChild(self, child):
+    def disown_child(self, child):
         if child not in self._children:
             return
         self._children.remove(child)
         child.parent = None
-        self.childRemoved.emit(child=child)
+        self.child_removed.emit(child=child)

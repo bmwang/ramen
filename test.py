@@ -3,15 +3,19 @@
 import ramen
 graph = ramen.Graph()
 
+
+class Scope(object):
+    pass
+
 # One child
 node = ramen.node.Node(graph=graph)
-assert(not node.acceptsChildren)
-assert(node.parent == graph.rootNode)
-assert(node in graph.rootNode.children)
-assert(len(graph.rootNode.children) == 1)
+assert(not node.accepts_children)
+assert(node.parent == graph.root_node)
+assert(node in graph.root_node.children)
+assert(len(graph.root_node.children) == 1)
 
 node = ramen.node.SubgraphNode(graph=graph)
-assert(node.acceptsChildren)
+assert(node.accepts_children)
 
 # Ten children
 graph.clear()
@@ -20,74 +24,75 @@ assert(len(graph.nodes) == 1)
 for i in range(10):
     ramen.node.Node(graph=graph)
 assert(len(graph.nodes) == 11)
-assert(len(graph.rootNode.children) == 10)
+assert(len(graph.root_node.children) == 10)
 
 # Deep children
 graph.clear()
 assert(len(graph.nodes) == 1)
-lastNode = None
+last_node = None
 for i in range(10):
-    lastNode = ramen.node.SubgraphNode(graph=graph, parent=lastNode)
+    last_node = ramen.node.SubgraphNode(graph=graph, parent=last_node)
 assert(len(graph.nodes) == 11)
-assert(len(graph.rootNode.children) == 1)
-lastNode = graph.rootNode
+assert(len(graph.root_node.children) == 1)
+last_node = graph.root_node
 for i in range(10):
-    assert(len(lastNode.children) == 1)
-    lastNode = lastNode.children.pop()
-assert(len(lastNode.ancestors) == 10)
+    assert(len(last_node.children) == 1)
+    last_node = last_node.children.pop()
+assert(len(last_node.ancestors) == 10)
 # reparent
-lastNode.ancestors = [graph.rootNode,
-        graph.rootNode.children.pop().children.pop()]
-assert(len(lastNode.ancestors) == 2)
-assert(len(lastNode.parent.children) == 2)
+last_node.ancestors = [graph.root_node,
+                       graph.root_node.children.pop().children.pop()]
+assert(len(last_node.ancestors) == 2)
+assert(len(last_node.parent.children) == 2)
 
-#  nodeId callbacks
+#  node_id callbacks
 # TODO more callback tests
 graph.clear()
 node = ramen.node.Node(graph=graph)
-curNodeId = node.nodeId
-class Scope(object): pass
+
 scope = Scope()
 scope.test = False
-def callbackTest():
+
+
+def callback_test():
     scope.test = True
-node.nodeIdChanged.connect(callbackTest)
-node.nodeId = graph._uniquefyNodeId(node.nodeId)
+node.node_id_changed.connect(callback_test)
+node.node_id = graph._uniquefy_node_id(node.node_id)
 assert(scope.test)
 assert(len(graph.nodes) == 2)
 
 # parameters
 graph.clear()
-nodeA = ramen.node.Node(graph=graph)
-nodeB = ramen.node.Node(graph=graph)
-nodeC = graph.createNode()
+node_a = ramen.node.Node(graph=graph)
+node_b = ramen.node.Node(graph=graph)
+node_c = graph.create_node()
 
-paramA = ramen.node.Parameter('paramLabelA', node=nodeA)
-paramB = ramen.node.Parameter('paramLabelB', node=nodeB)
-paramC = nodeC.createParameter('paramLabelC')
+param_a = ramen.node.Parameter('param a', node=node_a)
+param_b = ramen.node.Parameter('param b', node=node_b)
+param_c = node_c.create_parameter('param c')
 
-paramA.source = True
-paramB.source = True
-paramB.sink = True
-paramC.sink = True
+param_a.source = True
+param_b.source = True
+param_b.sink = True
+param_c.sink = True
 
-paramA.connect(paramB)
-paramB.connect(paramC)
+param_a.connect(param_b)
+param_b.connect(param_c)
 
-assert(paramB in paramA.connections)
-assert(paramB in paramA.connectionsOut)
-assert(paramB not in paramA.connectionsIn)
+assert(param_b in param_a.connections)
+assert(param_b in param_a.connections_out)
+assert(param_b not in param_a.connections_in)
 
-assert(paramA in paramB.connections)
-assert(paramA not in paramB.connectionsOut)
-assert(paramA in paramB.connectionsIn)
+assert(param_a in param_b.connections)
+assert(param_a not in param_b.connections_out)
+assert(param_a in param_b.connections_in)
 
-assert(paramC in paramB.connections)
-assert(paramC in paramB.connectionsOut)
-assert(paramC not in paramB.connectionsIn)
+assert(param_c in param_b.connections)
+assert(param_c in param_b.connections_out)
+assert(param_c not in param_b.connections_in)
 
-assert(paramA not in paramC.connections)
-assert(paramC not in paramA.connections)
+assert(param_a not in param_c.connections)
+assert(param_c not in param_a.connections)
 
 
 # Connecting parameters of different subgraphs
@@ -100,40 +105,42 @@ assert(paramC not in paramA.connections)
 #   F
 # Connecting a parameter on C to F should create tunnel parameters on A,B,D
 graph.clear()
-nodeA = ramen.node.SubgraphNode(graph=graph, label='a')
-nodeB = ramen.node.SubgraphNode(graph=graph, label='b')
-nodeC = ramen.node.Node(graph=graph, parent=nodeA, label='c')
-nodeD = ramen.node.SubgraphNode(graph=graph, parent=nodeB, label='d')
-nodeE = ramen.node.Node(graph=graph, parent=nodeB, label='e')
-nodeF = ramen.node.Node(graph=graph, parent=nodeD, label='f')
+node_a = ramen.node.SubgraphNode(graph=graph, label='a')
+node_b = ramen.node.SubgraphNode(graph=graph, label='b')
+node_c = ramen.node.Node(graph=graph, parent=node_a, label='c')
+node_d = ramen.node.SubgraphNode(graph=graph, parent=node_b, label='d')
+node_e = ramen.node.Node(graph=graph, parent=node_b, label='e')
+node_f = ramen.node.Node(graph=graph, parent=node_d, label='f')
 
-paramC = ramen.node.Parameter(node=nodeC, label='c')
-paramC.source = True
-paramF = ramen.node.Parameter(node=nodeF, label='f')
-paramF.sink = True
-paramC.connect(paramF)
+param_c = ramen.node.Parameter(node=node_c, label='c')
+param_c.source = True
+param_f = ramen.node.Parameter(node=node_f, label='f')
+param_f.sink = True
+param_c.connect(param_f)
 
-assert(len(graph.rootNode.parameters) == 0)
-assert(len(nodeA.parameters) == 1)
-assert(len(nodeB.parameters) == 1)
-assert(len(nodeC.parameters) == 1)
-assert(len(nodeD.parameters) == 1)
-assert(len(nodeE.parameters) == 0)
-assert(len(nodeF.parameters) == 1)
+assert(len(graph.root_node.parameters) == 0)
+assert(len(node_a.parameters) == 1)
+assert(len(node_b.parameters) == 1)
+assert(len(node_c.parameters) == 1)
+assert(len(node_d.parameters) == 1)
+assert(len(node_e.parameters) == 0)
+assert(len(node_f.parameters) == 1)
 
-assert(paramC in nodeA.getTunnelParameter(nodeA.parameters[0]).connections)
-assert(nodeA.getTunnelParameter(nodeA.parameters[0]) in paramC.connections)
-assert(nodeA.parameters[0] in nodeB.parameters[0].connections)
-assert(nodeB.parameters[0] in nodeA.parameters[0].connections)
-assert(nodeD.parameters[0] in nodeB.tunnelParameters[0].connections)
-assert(nodeB.tunnelParameters[0] in nodeD.parameters[0].connections)
-assert(paramF in nodeD.tunnelParameters[0].connections)
-assert(nodeD.tunnelParameters[0] in paramF.connections)
+assert(param_c in
+       node_a.get_tunnel_parameter(node_a.parameters[0]).connections)
+assert(node_a.get_tunnel_parameter(node_a.parameters[0]) in
+       param_c.connections)
+assert(node_a.parameters[0] in node_b.parameters[0].connections)
+assert(node_b.parameters[0] in node_a.parameters[0].connections)
+assert(node_d.parameters[0] in node_b.tunnel_parameters[0].connections)
+assert(node_b.tunnel_parameters[0] in node_d.parameters[0].connections)
+assert(param_f in node_d.tunnel_parameters[0].connections)
+assert(node_d.tunnel_parameters[0] in param_f.connections)
 
 # Connecting a parameter on E to F should not create an additional tunnel
 # parameter on D
-paramE = ramen.node.Parameter(node=nodeE, label='e')
-paramE.source = True
-paramE.connect(paramF)
-assert(len(nodeD.parameters) == 1)
-assert(len(nodeD.parameters[0].connections) == 2)
+param_e = ramen.node.Parameter(node=node_e, label='e')
+param_e.source = True
+param_e.connect(param_f)
+assert(len(node_d.parameters) == 1)
+assert(len(node_d.parameters[0].connections) == 2)
