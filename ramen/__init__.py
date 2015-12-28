@@ -1,4 +1,4 @@
-from .graph import Graph
-from .signal import Signal
+from ramen.graph import Graph
+from ramen.signal import Signal
 
-from . import node
+from ramen import node

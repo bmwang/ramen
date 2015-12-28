@@ -1,4 +1,4 @@
-from ..signal import Signal
+from ramen.signal import Signal
 import itertools
 
 

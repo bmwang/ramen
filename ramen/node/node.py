@@ -1,12 +1,22 @@
-from ..signal import Signal
-from . import parentChild
-from . import parameter
+from ramen.signal import Signal
+from ramen.node import parentChild
+from ramen.node import parameter
 
 
 class Node(parentChild.ParentChild):
-    def __init__(self, label=None, node_id=0, parent=None, graph=None):
+    def __init__(self, parent=None, label=None, node_id=0, graph=None):
         super(Node, self).__init__()
-        # Simple properties with signals
+        # If a parent is provided, use the parent's graph.
+        if parent is not None:
+            if parent.graph is not graph and graph is not None:
+                print("Warning: Specified graph differs from parent's graph. "
+                      "Using parent's graph")
+            graph = parent.graph
+
+        if graph is None:
+            raise RuntimeError('Node created with an invalid graph')
+
+        # Properties
         self._node_id = node_id
         self._label = label
         self._pos = (0, 0)

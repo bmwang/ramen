@@ -29,9 +29,9 @@ assert(len(graph.root_node.children) == 10)
 # Deep children
 graph.clear()
 assert(len(graph.nodes) == 1)
-last_node = None
+last_node = graph.root_node
 for i in range(10):
-    last_node = ramen.node.SubgraphNode(graph=graph, parent=last_node)
+    last_node = ramen.node.SubgraphNode(parent=last_node)
 assert(len(graph.nodes) == 11)
 assert(len(graph.root_node.children) == 1)
 last_node = graph.root_node
@@ -107,10 +107,10 @@ assert(param_c not in param_a.connections)
 graph.clear()
 node_a = ramen.node.SubgraphNode(graph=graph, label='a')
 node_b = ramen.node.SubgraphNode(graph=graph, label='b')
-node_c = ramen.node.Node(graph=graph, parent=node_a, label='c')
-node_d = ramen.node.SubgraphNode(graph=graph, parent=node_b, label='d')
-node_e = ramen.node.Node(graph=graph, parent=node_b, label='e')
-node_f = ramen.node.Node(graph=graph, parent=node_d, label='f')
+node_c = ramen.node.Node(parent=node_a, label='c')
+node_d = ramen.node.SubgraphNode(parent=node_b, label='d')
+node_e = ramen.node.Node(parent=node_b, label='e')
+node_f = ramen.node.Node(parent=node_d, label='f')
 
 param_c = ramen.node.Parameter(node=node_c, label='c')
 param_c.source = True
