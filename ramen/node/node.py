@@ -1,9 +1,9 @@
 from ramen.signal import Signal
-from ramen.node import parentChild
+from ramen.node import parentable
 from ramen.node import parameter
 
 
-class Node(parentChild.ParentChild):
+class Node(parentable.Parentable):
     def __init__(self, parent=None, label=None, node_id=0, graph=None):
         super(Node, self).__init__()
         # If a parent is provided, use the parent's graph.
@@ -210,10 +210,10 @@ class Node(parentChild.ParentChild):
     def accepts_children(self):
         return False
 
-    @parentChild.ParentChild.accepts_children.setter
+    @parentable.Parentable.accepts_children.setter
     def accepts_children(self, accepts_children):
         # I don't care what you give me, I don't accept children.
-        parentChild.ParentChild.accepts_children.fset(self, False)
+        parentable.Parentable.accepts_children.fset(self, False)
 
     def create_parameter(self, *args, **kwargs):
         kwargs['node'] = self
@@ -267,10 +267,10 @@ class SubgraphNode(Node):
     def accepts_children(self):
         return True
 
-    @parentChild.ParentChild.accepts_children.setter
+    @parentable.Parentable.accepts_children.setter
     def accepts_children(self, accepts_children):
         # I don't care what you give me, I always accept children.
-        parentChild.ParentChild.accepts_children.fset(self, True)
+        parentable.Parentable.accepts_children.fset(self, True)
 
     def _parameter_added_callback(self, param):
         # This is pretty dirty, TODO: clean up

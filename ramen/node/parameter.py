@@ -1,9 +1,9 @@
 from ramen.signal import Signal
-from ramen.node import parentChild
+from ramen.node import parentable
 from ramen.node import connectable
 
 
-class Parameter(parentChild.ParentChild, connectable.Connectable):
+class Parameter(parentable.Parentable, connectable.Connectable):
     def __init__(self, label=None, parameter_id=0, parent=None, index=0,
                  node=None):
         super(Parameter, self).__init__()

@@ -2,7 +2,7 @@ from ramen.signal import Signal
 import itertools
 
 
-class ParentChild(object):
+class Parentable(object):
     '''An object with parent, child relationships'''
     def __init__(self):
         self._parent = None
