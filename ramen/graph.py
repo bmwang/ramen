@@ -36,6 +36,8 @@ class Graph(object):
 
         self.node_added.connect(self._node_added_callback)
         self.node_removed.connect(self._node_removed_callback)
+        self.node_selected_changed.connect(
+            self._node_selected_changed_callback)
 
     @property
     def nodes(self):
@@ -82,12 +84,13 @@ class Graph(object):
 
     @selected_nodes.setter
     def selected_nodes(self, selected_nodes):
+        selected_nodes = set(selected_nodes)
         nodes_to_select = selected_nodes.difference(self._selected_nodes)
         nodes_to_unselect = self._selected_nodes.difference(selected_nodes)
         for node in nodes_to_select:
-            node.set_selected(True)
+            node.selected = True
         for node in nodes_to_unselect:
-            node.set_selected(False)
+            node.selected = False
 
     def clear_selection(self):
         for node in self.get_selected_nodes():
@@ -140,3 +143,9 @@ class Graph(object):
             print('Warning: deleting root node')
             self._root_node_id = None
         del self._nodes[node.node_id]
+
+    def _node_selected_changed_callback(self, node):
+        if not node.selected and node in self.selected_nodes:
+            self._selected_nodes.remove(node)
+        elif node.selected and node not in self.selected_nodes:
+            self._selected_nodes.add(node)
