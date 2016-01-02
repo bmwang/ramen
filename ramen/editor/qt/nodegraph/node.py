@@ -1,5 +1,5 @@
 from PyQt4 import QtGui, QtCore
-from ramen.editor.nodegraph.nodegraphscene import NodegraphScene
+from ramen.editor.qt.nodegraph.nodegraphscene import NodegraphScene
 
 
 class Node(QtGui.QGraphicsItem):

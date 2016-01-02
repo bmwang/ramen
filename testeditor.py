@@ -8,7 +8,7 @@ import ramen
 
 
 app = QtGui.QApplication(sys.argv)
-nodegraph = ramen.editor.nodegraph.Nodegraph()
+nodegraph = ramen.editor.qt.nodegraph.Nodegraph()
 nodegraph.resize(500, 500)
 nodegraph.show()
 nodegraph.raise_()

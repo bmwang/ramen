@@ -1,6 +1,6 @@
 from PyQt4 import QtCore, QtGui
 import ramen
-from ramen.editor.nodegraph import nodegraphview
+from ramen.editor.qt.nodegraph import nodegraphview
 
 # I realize that PyQt uses mixedCase, and Ramen/Python standard lib uses
 # underscores, so there is some weird mixing here.
@@ -51,8 +51,8 @@ class Nodegraph(QtGui.QWidget):
     def _addNode(self, node):
         # This should be in a delegate?
         uiMapping = {
-            ramen.node.Node: ramen.editor.nodegraph.Node,
-            ramen.node.SubgraphNode: ramen.editor.nodegraph.SubgraphNode,
+            ramen.node.Node: ramen.editor.qt.nodegraph.Node,
+            ramen.node.SubgraphNode: ramen.editor.qt.nodegraph.SubgraphNode,
         }
         if node not in self._ramenToUI:
             # If this node's ancestors haven't been added, make sure they are.

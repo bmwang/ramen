@@ -104,7 +104,7 @@ class NodegraphScene(QtGui.QGraphicsScene):
             event.accept()
             self.graph.selected_nodes = []
             for uiItem in self.collidingItems(self._bandSelectRect):
-                if isinstance(uiItem, ramen.editor.nodegraph.Node):
+                if isinstance(uiItem, ramen.editor.qt.nodegraph.Node):
                     uiItem.node.selected = True
             self._bandSelectRect.hide()
             self._bandSelectAnchor = None
@@ -113,7 +113,7 @@ class NodegraphScene(QtGui.QGraphicsScene):
     def mouseDoubleClickEvent(self, event):
         super(NodegraphScene, self).mouseDoubleClickEvent(event)
         hoveredNodeUI = self.itemTypeAt(event.scenePos(),
-                                        ramen.editor.nodegraph.Node)
+                                        ramen.editor.qt.nodegraph.Node)
         if hoveredNodeUI is not None:
             hoveredNodeUI.node.selected = True
 
@@ -123,7 +123,7 @@ class NodegraphScene(QtGui.QGraphicsScene):
             if event.buttons() == QtCore.Qt.LeftButton:
                 event.accept()
                 hoveredNodeUI = self.itemTypeAt(event.scenePos(),
-                                                ramen.editor.nodegraph.Node)
+                                                ramen.editor.qt.nodegraph.Node)
                 if hoveredNodeUI is not None:
                     # If we clicked directly on a node
                     hoveredNode = hoveredNodeUI.node

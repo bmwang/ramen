@@ -1,1 +1,1 @@
-from ramen.editor import nodegraph
+import ramen.editor.qt
