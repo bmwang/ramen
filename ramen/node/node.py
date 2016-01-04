@@ -217,6 +217,9 @@ class Node(parentable.Parentable):
 
     def create_parameter(self, *args, **kwargs):
         kwargs['node'] = self
+        if 'parent' not in kwargs and len(args) < 3:
+            # gross check, TODO: make this check nicer
+            kwargs['parent'] = self.root_parameter
         return parameter.Parameter(*args, **kwargs)
 
     def delete_parameter(self, parameter):
@@ -257,11 +260,11 @@ class Node(parentable.Parentable):
 
 class SubgraphNode(Node):
     def __init__(self, *args, **kwargs):
-        super(SubgraphNode, self).__init__(*args, **kwargs)
-        self.accepts_children = True
         self._tunnel_parameters = {}
         self._parameter_to_tunnel = {}
         self._tunnel_to_parameter = {}
+        super(SubgraphNode, self).__init__(*args, **kwargs)
+        self.accepts_children = True
 
     @property
     def accepts_children(self):

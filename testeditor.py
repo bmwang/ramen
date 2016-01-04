@@ -18,11 +18,16 @@ node_a = graph.create_node(label='a')
 node_b = graph.create_node(label='b')
 node_c = graph.create_node(label='c')
 
+param_a = node_a.create_parameter(label='param a')
+param_a2 = node_a.create_parameter(label='param a2')
+param_b = node_b.create_parameter(label='param b')
+param_c = node_c.create_parameter(label='param c')
+
 assert(nodegraph.getNodeUI(node_a) is not None)
 assert(nodegraph.getNodeUI(node_b) is not None)
 
 node_a.pos = (0, 0)
-node_b.pos = (0, 50)
+node_b.pos = (0, 100)
 node_c.pos = (0, -50)
 
 

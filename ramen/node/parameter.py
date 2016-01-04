@@ -7,12 +7,16 @@ class Parameter(parentable.Parentable, connectable.Connectable):
     def __init__(self, label=None, parameter_id=0, parent=None, index=0,
                  node=None):
         super(Parameter, self).__init__()
-        # Simple properties with signals
+        if parent is not None:
+            if parent.node is not node and node is not None:
+                print("Warning: Specified node differs from parent's node. "
+                      "Using parent's node")
+            node = parent.node
+        # Properties
         self._parameter_id = parameter_id
         self._label = label
         self._inbex = index
 
-        # More complicated properties
         # Whether or not this parameter can take connections
         # Source -> Sink
         # If this parameter itself does not take connections, connections
@@ -36,6 +40,7 @@ class Parameter(parentable.Parentable, connectable.Connectable):
         self.sink_changed = Signal()
         self.source_changed = Signal()
 
+        self.parent = parent
         # TODO: this needs to fill in the other sink/source value
         # self.connectionModeChanged = Signal()
         # self.sink_changed.connect(self.connectionModeChanged.emit)
