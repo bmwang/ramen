@@ -1,5 +1,6 @@
 from PyQt4 import QtGui, QtCore
 import ramen
+from ramen.signal import Signal
 
 
 class NodegraphScene(QtGui.QGraphicsScene):
@@ -23,6 +24,11 @@ class NodegraphScene(QtGui.QGraphicsScene):
         self._bandSelectRect.setBrush(
                 QtGui.QBrush(QtGui.QColor(255, 255, 255)))
         self._bandSelectRect.setOpacity(0.25)
+
+        # mouse connection for when a user creates a connection
+        self.mousePosChanged = Signal()
+        self.mousePos = QtCore.QPointF()
+        self.mouseConnection = None
 
     @property
     def activeDrag(self):
@@ -74,6 +80,7 @@ class NodegraphScene(QtGui.QGraphicsScene):
 
     def mouseMoveEvent(self, event):
         super(NodegraphScene, self).mouseMoveEvent(event)
+        self.mousePos = event.scenePos()
         lastX = event.lastScenePos().x()
         lastY = event.lastScenePos().y()
         curX = event.scenePos().x()
@@ -95,6 +102,8 @@ class NodegraphScene(QtGui.QGraphicsScene):
             rect = QtCore.QRectF(min(rectX, curX), min(rectY, curY),
                                  abs(rectX - curX), abs(rectY - curY))
             self._bandSelectRect.setRect(rect)
+
+        self.mousePosChanged.emit()
 
     def mouseReleaseEvent(self, event):
         # Stop an active drag
@@ -125,19 +134,64 @@ class NodegraphScene(QtGui.QGraphicsScene):
                 hoveredNodeUI = self.itemTypeAt(event.scenePos(),
                                                 ramen.editor.qt.nodegraph.Node)
                 if hoveredNodeUI is not None:
-                    # If we clicked directly on a node
-                    hoveredNode = hoveredNodeUI.node
-                    if event.modifiers() == QtCore.Qt.ShiftModifier:
-                        # Shift modifier acts as a not, and we dont drag
-                        hoveredNode.selected = not hoveredNode.selected
+                    hoveredParamUI = self.itemTypeAt(
+                        event.scenePos(),
+                        ramen.editor.qt.nodegraph.Parameter)
+                    if hoveredParamUI is not None and not self.activeDrag:
+                        hoveredParam = hoveredParamUI.ramenParameter
+                        if self.mouseConnection is None:
+                            self.createMouseConnection(hoveredParam)
+                        else:
+                            self.sinkMouseConnection(hoveredParam)
                     else:
-                        if not hoveredNode.selected:
-                            # If this node wasn't selected, select it
-                            self.graph.selected_nodes = []
-                            hoveredNode.selected = True
-                        # Drag if this node was clicked on without a modifier
-                        self.activeDrag = True
+                        # If we clicked directly on a node
+                        hoveredNode = hoveredNodeUI.node
+                        if event.modifiers() == QtCore.Qt.ShiftModifier:
+                            # Shift modifier acts as a not, and we dont drag
+                            hoveredNode.selected = not hoveredNode.selected
+                        else:
+                            if not hoveredNode.selected:
+                                # If this node wasn't selected, select it
+                                self.graph.selected_nodes = []
+                                hoveredNode.selected = True
+                            # Drag if this node was clicked without a modifier
+                            self.activeDrag = True
                 else:
                     self._bandSelectAnchor = event.scenePos()
                     self._bandSelectRect.setRect(QtCore.QRectF(
                         self._bandSelectAnchor, self._bandSelectAnchor))
+
+                    if self.mouseConnection is None:
+                        hoveredConnUI = self.itemTypeAt(
+                            event.scenePos(),
+                            ramen.editor.qt.nodegraph.Connection)
+                        if hoveredConnUI is not None:
+                            sourceVec = (hoveredConnUI.sourcePos -
+                                         event.scenePos())
+                            sinkVec = hoveredConnUI.sinkPos - event.scenePos()
+                            # manhattan distance
+                            sourceDist = abs(sourceVec.x())+abs(sourceVec.y())
+                            sinkDist = abs(sinkVec.x())+abs(sinkVec.y())
+                            farthestParam = hoveredConnUI.source
+                            if sourceDist < sinkDist:
+                                farthestParam = hoveredConnUI.sink
+                            hoveredConnUI.source.disconnect(hoveredConnUI.sink)
+                            self.createMouseConnection(farthestParam)
+                    else:
+                        self.sinkMouseConnection(None)
+
+    def createMouseConnection(self, param):
+        if param.source:
+            self.mouseConnection = ramen.editor.qt.nodegraph.MouseConnection(
+                nodegraph=self.nodegraph,
+                sourceParam=param)
+        elif param.sink:
+            self.mouseConnection = ramen.editor.qt.nodegraph.MouseConnection(
+                nodegraph=self.nodegraph,
+                sinkParam=param)
+
+    def sinkMouseConnection(self, param):
+        if param is not None:
+            self.mouseConnection.anchorParameter.connect(param)
+        self.removeItem(self.mouseConnection)
+        self.mouseConnection = None

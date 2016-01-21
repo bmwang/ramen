@@ -69,6 +69,20 @@ class Node(parentable.Parentable):
         return '<%s: %s%s>' % (self.__class__.__name__, self.node_id,
                                label_str)
 
+    def _connection_added_filter(self, fn, **kwargs):
+        """Prevent duplicate lofted connection_added signals by only
+        emitting if we're the source of the connection added"""
+        source = kwargs['source']
+        if source.node == self:
+            fn(**kwargs)
+
+    def _connection_removed_filter(self, fn, **kwargs):
+        """Prevent duplicate lofted connection_removed signals by only
+        emitting if we're the source of the connection added"""
+        source = kwargs['source']
+        if source.node == self:
+            fn(**kwargs)
+
     def register_callbacks(self):
         # Graph level signals
         self.pos_changed.connect(self.graph.node_pos_changed.emit, node=self)
@@ -84,8 +98,11 @@ class Node(parentable.Parentable):
             self.graph.node_attributes_changed.emit, node=self)
 
         # lofted parameter signals
-        self.connection_added.connect(self.graph.connection_added.emit)
-        self.connection_removed.connect(self.graph.connection_removed.emit)
+        # self.connection_added.connect(self.graph.connection_added.emit)
+        self.connection_added.connect(self._connection_added_filter,
+                                      fn=self.graph.connection_added.emit)
+        self.connection_removed.connect(self._connection_removed_filter,
+                                        fn=self.graph.connection_removed.emit)
         self.parameter_sink_changed.connect(
             self.graph.parameter_sink_changed.emit)
         self.parameter_source_changed.connect(
@@ -102,8 +119,8 @@ class Node(parentable.Parentable):
                 self.graph.node_attributes_changed.emit)
 
         # lofted parameter signals
-        self.connection_added.disconnect(self.graph.connection_added.emit)
-        self.connection_removed.disconnect(self.graph.connection_removed.emit)
+        self.connection_added.disconnect(self._connection_added_filter)
+        self.connection_removed.disconnect(self._connection_removed_filter)
         self.parameter_sink_changed.disconnect(
                 self.graph.parameter_sink_changed.emit)
         self.parameter_source_changed.disconnect(

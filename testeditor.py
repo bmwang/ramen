@@ -19,9 +19,14 @@ node_b = graph.create_node(label='b')
 node_c = graph.create_node(label='c')
 
 param_a = node_a.create_parameter(label='param a')
+param_a.source = True
 param_a2 = node_a.create_parameter(label='param a2')
 param_b = node_b.create_parameter(label='param b')
+param_b.sink = True
 param_c = node_c.create_parameter(label='param c')
+
+
+param_a.connect(param_b)
 
 assert(nodegraph.getNodeUI(node_a) is not None)
 assert(nodegraph.getNodeUI(node_b) is not None)
@@ -42,6 +47,14 @@ def print_node_selected(node):
 def assign_pos_as_label_on_c():
     node_c.label = str(node_c.pos)
 
+
+def conn_added_cb(source, sink, param):
+    print('conn added %s -> %s from %s' % (source, sink, param))
+
+
+def conn_removed_cb(source, sink, param):
+    print('conn removed %s -> %s from %s' % (source, sink, param))
+
 # Can directly listen to nodes
 # node_a.pos_changed.connect(
 #     lambda: print('Node A Pos: %s (direct)' % str(node_a.pos)))
@@ -50,5 +63,10 @@ def assign_pos_as_label_on_c():
 graph.node_pos_changed.connect(print_node_pos)
 graph.node_selected_changed.connect(print_node_selected)
 node_c.pos_changed.connect(assign_pos_as_label_on_c)
+# Only one connection_added signal is fired on the graph, but each parameter
+# fires its own connection_added.
+graph.connection_added.connect(conn_added_cb)
+graph.connection_removed.connect(conn_removed_cb)
+
 
 sys.exit(app.exec_())

@@ -83,6 +83,18 @@ class Connectable(object):
         elif self.source and param.sink:
             self.connect_to_sink(param)
 
+    def disconnect(self, param):
+        if param is None:
+            return
+        if param in self._connections_in:
+            self._connections_in.remove(param)
+            param.disconnect(self)
+            self.connection_removed.emit(source=param, sink=self)
+        if param in self._connections_out:
+            self._connections_out.remove(param)
+            param.disconnect(self)
+            self.connection_removed.emit(source=self, sink=param)
+
     def connect_to_source(self, param):
         if not (self.sink and param.source):
             return
@@ -94,7 +106,8 @@ class Connectable(object):
             return
         self._connections_in.add(param)
         param.connect_to_sink(self)
-        # Only one connect function needs the signal emission
+        # This creates two connection_added emissions (one on source and one
+        # on sink). TODO: should we make it only one signal?
         self.connection_added.emit(source=param, sink=self)
 
     def connect_to_sink(self, param):
@@ -104,6 +117,9 @@ class Connectable(object):
             return
         self._connections_out.add(param)
         param.connect_to_source(self)
+        # This creates two connection_added emissions (one on source and one
+        # on sink). TODO: should we make it only one signal?
+        self.connection_added.emit(source=self, sink=param)
 
     def disconnectAll(self):
         self.connections = set()

@@ -1,6 +1,7 @@
 from PyQt4 import QtGui, QtCore
 from ramen.editor.qt.nodegraph.nodegraphscene import NodegraphScene
 from ramen.editor.qt.nodegraph.parameter import Parameter
+from ramen.signal import Signal
 
 
 class Node(QtGui.QGraphicsItem):
@@ -14,6 +15,8 @@ class Node(QtGui.QGraphicsItem):
 
         self._backdrop = QtGui.QGraphicsRectItem(self)
         self._label = QtGui.QGraphicsTextItem(self)
+
+        self.updatedGeo = Signal()
 
         self.registerRamenCallbacks()
         self.syncParameters()
@@ -96,6 +99,7 @@ class Node(QtGui.QGraphicsItem):
                 0, rootParamUIPos)
 
         self._backdrop.setRect(backdropRect)
+        self.updatedGeo.emit()
 
     def boundingRect(self):
         return self.childrenBoundingRect()
