@@ -92,6 +92,9 @@ class NodegraphScene(QtGui.QGraphicsScene):
             dragX = dragGroup.pos().x()
             dragY = dragGroup.pos().y()
             dragGroup.setPos(dragX + (curX - lastX), dragY + (curY - lastY))
+            for childNodeUI in self._dragGroup.childItems():
+                # move this into nodeui?
+                childNodeUI.updatedGeo.emit()
         elif self._bandSelectAnchor is not None:
             # If we created a band selection anchor, create/update
             # a rect to show the selection area accordingly

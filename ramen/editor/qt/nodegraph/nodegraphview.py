@@ -6,6 +6,7 @@ class NodegraphView(QtGui.QGraphicsView):
     def __init__(self, nodegraph, parent=None):
         super(NodegraphView, self).__init__(parent)
         self.nodegraph = nodegraph
+        self.setRenderHints(QtGui.QPainter.Antialiasing)
 
     def viewSubgraph(self, subgraphNode):
         nodeUI = self.nodegraph.getNodeUI(subgraphNode)

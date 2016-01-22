@@ -17,6 +17,7 @@ class Connection(QtGui.QGraphicsPathItem):
 
         # signals
         self.updatedGeo = Signal()
+        self.posChanged = Signal()
 
         # ui stuff
         self.setZValue(-1)
