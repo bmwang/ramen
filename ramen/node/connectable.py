@@ -49,7 +49,7 @@ class Connectable(object):
         for node in nodes_to_connect:
             self.connect_to_source(node)
         for node in nodes_to_disconnect:
-            self.disconnectFromSource(node)
+            self.disconnect_from_source(node)
 
     @connections_in.setter
     def connections_in(self, new_conns):
@@ -58,7 +58,7 @@ class Connectable(object):
         for node in nodes_to_connect:
             self.connect_to_sink(node)
         for node in nodes_to_disconnect:
-            self.disconnectFromSink(node)
+            self.disconnect_from_sink(node)
 
     @property
     def connections(self):
@@ -86,10 +86,16 @@ class Connectable(object):
     def disconnect(self, param):
         if param is None:
             return
+        self.disconnect_from_sink(param)
+        self.disconnect_from_source(param)
+
+    def disconnect_from_source(self, param):
         if param in self._connections_in:
             self._connections_in.remove(param)
             param.disconnect(self)
             self.connection_removed.emit(source=param, sink=self)
+
+    def disconnect_from_sink(self, param):
         if param in self._connections_out:
             self._connections_out.remove(param)
             param.disconnect(self)
@@ -106,9 +112,12 @@ class Connectable(object):
             return
         self._connections_in.add(param)
         param.connect_to_sink(self)
-        # This creates two connection_added emissions (one on source and one
-        # on sink). TODO: should we make it only one signal?
-        self.connection_added.emit(source=param, sink=self)
+        # This parameter connection may have been rejected, so
+        # check that it was successfully created before emitting
+        if param in self._connections_in:
+            # This creates two connection_added emissions (one on source and
+            # one on sink). TODO: should we make it only one signal?
+            self.connection_added.emit(source=param, sink=self)
 
     def connect_to_sink(self, param):
         if not (self.source and param.sink):
@@ -117,9 +126,10 @@ class Connectable(object):
             return
         self._connections_out.add(param)
         param.connect_to_source(self)
-        # This creates two connection_added emissions (one on source and one
-        # on sink). TODO: should we make it only one signal?
-        self.connection_added.emit(source=self, sink=param)
+        # This parameter connection may have been rejected, so
+        # check that it was successfully created before emitting
+        if param in self._connections_out:
+            self.connection_added.emit(source=self, sink=param)
 
     def disconnectAll(self):
         self.connections = set()

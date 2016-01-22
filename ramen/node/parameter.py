@@ -5,7 +5,7 @@ from ramen.node import connectable
 
 class Parameter(parentable.Parentable, connectable.Connectable):
     def __init__(self, label=None, parameter_id=0, parent=None, index=0,
-                 node=None):
+                 node=None, source=False, sink=False):
         super(Parameter, self).__init__()
         if parent is not None:
             if parent.node is not node and node is not None:
@@ -17,13 +17,6 @@ class Parameter(parentable.Parentable, connectable.Connectable):
         self._label = label
         self._inbex = index
 
-        # Whether or not this parameter can take connections
-        # Source -> Sink
-        # If this parameter itself does not take connections, connections
-        # to this parameter will flow to the first child of the parameter that
-        # does
-        self._sink = False
-        self._source = False
         # Attached node
         self._node = node
         # Outward and inward connections
@@ -45,6 +38,8 @@ class Parameter(parentable.Parentable, connectable.Connectable):
         # self.connectionModeChanged = Signal()
         # self.sink_changed.connect(self.connectionModeChanged.emit)
         # self.source_changed.connect(self.connectionModeChanged.emit)
+        self.source = source
+        self.sink = sink
         self.register_callbacks()
         if self._node is not None:
             self._node.parameter_added.emit(parameter=self, param=self)
