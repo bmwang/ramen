@@ -1,5 +1,5 @@
-from ramen.signal import Signal
-from ramen import node
+from ramen.core.signal import Signal
+from ramen.core import node
 
 
 class Graph(object):

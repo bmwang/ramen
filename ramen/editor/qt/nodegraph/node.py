@@ -1,7 +1,7 @@
 from PyQt4 import QtGui, QtCore
 from ramen.editor.qt.nodegraph.nodegraphscene import NodegraphScene
 from ramen.editor.qt.nodegraph.parameter import Parameter
-from ramen.signal import Signal
+from ramen.core.signal import Signal
 
 
 class Node(QtGui.QGraphicsItem):

@@ -1,5 +1,5 @@
 from PyQt4 import QtGui, QtCore
-from ramen.signal import Signal
+from ramen.core.signal import Signal
 
 
 class Connection(QtGui.QGraphicsPathItem):

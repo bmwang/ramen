@@ -1,5 +1,5 @@
-from ramen.graph import Graph
-from ramen.signal import Signal
+import ramen.core
+import ramen.editor
 
-from ramen import node
-from ramen import editor
+from ramen.core.graph import Graph
+from ramen.core import node

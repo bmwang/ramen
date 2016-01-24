@@ -1,5 +1,5 @@
 from PyQt4 import QtCore, QtGui
-from ramen.signal import Signal
+from ramen.core.signal import Signal
 
 
 class NodegraphView(QtGui.QGraphicsView):

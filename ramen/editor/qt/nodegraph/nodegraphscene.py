@@ -1,6 +1,6 @@
 from PyQt4 import QtGui, QtCore
 import ramen
-from ramen.signal import Signal
+from ramen.core.signal import Signal
 
 
 class NodegraphScene(QtGui.QGraphicsScene):

@@ -1,6 +1,6 @@
-from ramen.signal import Signal
-from ramen.node import parentable
-from ramen.node import connectable
+from ramen.core.signal import Signal
+from ramen.core.node import parentable
+from ramen.core.node import connectable
 
 
 class Parameter(parentable.Parentable, connectable.Connectable):
