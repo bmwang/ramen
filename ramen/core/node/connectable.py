@@ -1,3 +1,7 @@
+# TODO: add support for parent-child connections, with a deep
+# sink/source
+
+
 class Connectable(object):
     def __init__(self):
         self._connections_in = set()
@@ -13,9 +17,7 @@ class Connectable(object):
 
     @property
     def sink(self):
-        if self._sink:
-            return True
-        return any([child.sink for child in self._children])
+        return self._sink
 
     @sink.setter
     def sink(self, sink):
@@ -24,9 +26,7 @@ class Connectable(object):
 
     @property
     def source(self):
-        if self._source:
-            return True
-        return any([child.source for child in self._children])
+        return self._source
 
     @source.setter
     def source(self, source):
