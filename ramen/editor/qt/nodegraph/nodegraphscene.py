@@ -137,6 +137,7 @@ class NodegraphScene(QtGui.QGraphicsScene):
                 hoveredNodeUI = self.itemTypeAt(event.scenePos(),
                                                 ramen.editor.qt.nodegraph.Node)
                 if hoveredNodeUI is not None:
+                    paramInteracted = False
                     hoveredParamUI = self.itemTypeAt(
                         event.scenePos(),
                         ramen.editor.qt.nodegraph.Parameter)
@@ -144,9 +145,11 @@ class NodegraphScene(QtGui.QGraphicsScene):
                         hoveredParam = hoveredParamUI.ramenParameter
                         if self.mouseConnection is None:
                             self.createMouseConnection(hoveredParam)
+                            paramInteracted = self.mouseConnection is not None
                         else:
                             self.sinkMouseConnection(hoveredParam)
-                    else:
+                            paramInteracted = True
+                    if not paramInteracted:
                         # If we clicked directly on a node
                         hoveredNode = hoveredNodeUI.node
                         if event.modifiers() == QtCore.Qt.ShiftModifier:
