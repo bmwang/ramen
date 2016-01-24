@@ -33,7 +33,6 @@ param_d = node_d.create_parameter(label='param d (both source and sink)',
                                   source=True, sink=True)
 param_e = node_e.create_parameter(label='param e (unconnectable)')
 
-
 param_a.connect(param_b)
 
 assert(nodegraph.getNodeUI(node_a) is not None)
@@ -71,6 +70,7 @@ def reject_many_connections_on_a2(source, sink):
         return
     if len(sink.connections) > 1:
         source.disconnect(sink)
+
 
 def reject_self_connections(source, sink):
     if source.node == sink.node:
